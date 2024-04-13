@@ -1,0 +1,72 @@
+{
+  "Equipe": [
+    {
+      "ID_de_l_equipe": 1,
+      "Nom_de_l_equipe": "Hamas",
+      "Logo_de_l_equipe": "url_du_logo"
+    },
+    {
+      "ID_de_l_equipe": 2,
+      "Nom_de_l_equipe": "404",
+      "Logo_de_l_equipe": "url_du_logo"
+    }
+  ],
+  "Utilisateur": [
+    {
+      "ID_de_l_utilisateur": 1,
+      "Nom_d_utilisateur": "utilisateur1",
+      "Mot_de_passe": "mot_de_passe_hashé",
+      "Adresse_e_mail": "utilisateur1@example.com",
+      "Role": "Jury"
+    },
+    {
+      "ID_de_l_utilisateur": 2,
+      "Nom_d_utilisateur": "utilisateur2",
+      "Mot_de_passe": "mot_de_passe_hashé",
+      "Adresse_e_mail": "utilisateur2@example.com",
+      "Role": "Participant"
+    }
+  ],
+  "Challenge": [
+    {
+      "ID_du_defi": 1,
+      "Titre_du_defi": "Défi 1",
+      "Date_de_debut": "2024-04-15",
+      "Date_de_fin": "2024-05-15"
+      
+    },
+    {
+      "ID_du_defi": 2,
+      "Titre_du_defi": "Défi 2",
+      "Description_du_defi": "Description du défi 2",
+      "Date_de_debut": "2024-06-01",
+      "Date_de_fin": "2024-06-30"
+    }
+  ],
+  "Evaluation": [
+    {
+      "ID_de_l_evaluation": 1,
+      "ID_de_l_equipe_evaluee": 1,
+      "ID_du_defi_evalue": 1,
+      "Note_attribuee": 8,
+      "Commentaires": "Très bonne performance"
+    },
+    {
+      "ID_de_l_evaluation": 2,
+      "ID_de_l_equipe_evaluee": 2,
+      "ID_du_defi_evalue": 1,
+      "Note_attribuee": 7,
+      "Commentaires": "Peut encore s'améliorer"
+    }
+  ],
+  "Statistiques": [
+    {
+      "ID_de_la_statistique": 1,
+      "Nombre_d_equipes_participantes": 2,
+      "Score_total_de_chaque_equipe": {
+        "404": 30,
+        "Hamas": 25
+      }
+    }
+  ]
+}
