@@ -3,12 +3,13 @@ const session = require('express-session');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const app = express();
+const cors = require('cors');
 app.use(express.static('public'));
 const { Equipe, Utilisateur, Challenge, Evaluation, Statistiques } = require('./config'); // Importation des modèles
 app.set('view engine', 'ejs');
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
+app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Configuration de la session
@@ -17,6 +18,7 @@ app.use(session({
   resave: false,
   saveUninitialized: true
 }));
+
 
 // Middleware pour vérifier l'authentification
 const requireLogin = (req, res, next) => {
@@ -60,7 +62,7 @@ app.post('/equipes', requireLogin, async (req, res) => {
 // Routes pour manipuler les données des utilisateurs
 
 // Obtention de tous les utilisateurs
-app.get('/utilisateurs', requireLogin, async (req, res) => {
+app.get('/utilisateurs', async (req, res) => {
   try {
     const utilisateurs = await Utilisateur.find();
     res.json(utilisateurs);
@@ -68,9 +70,14 @@ app.get('/utilisateurs', requireLogin, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+// Route pour la racine de l'application
+app.get('/', (req, res) => {
+  res.send('Bienvenue sur la page d\'accueil');
+});
+
 
 // Création d'un nouvel utilisateur
-app.post('/utilisateurs', requireLogin, async (req, res) => {
+app.post('/utilisateurs', async (req, res) => {
   const utilisateur = new Utilisateur({
     ID_de_l_utilisateur: req.body.ID_de_l_utilisateur,
     Nom_d_utilisateur: req.body.Nom_d_utilisateur,
@@ -90,7 +97,7 @@ app.post('/utilisateurs', requireLogin, async (req, res) => {
 // Routes pour manipuler les données des défis
 
 // Obtention de tous les défis
-app.get('/defis', requireLogin, async (req, res) => {
+app.get('/defis',  async (req, res) => {
   try {
     const defis = await Challenge.find();
     res.json(defis);
@@ -174,5 +181,63 @@ app.post('/statistiques', requireLogin, async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 });
+// Route pour la connexion utilisateur
+app.post('/connexion', async (req, res) => {
+  const { username, password } = req.body;
 
-app.listen(3000, () => console.log('Serveur démarré sur le port 3000'));
+  try {
+    // Recherche de l'utilisateur dans la base de données
+    const user = await Utilisateur.findOne({ Nom_d_utilisateur: username });
+
+    // Vérification si l'utilisateur existe et si le mot de passe est correct
+    if (!user || user.Mot_de_passe !== password) {
+      throw new Error('Nom d\'utilisateur ou mot de passe incorrect');
+    }
+
+    // Connexion réussie
+    req.session.user = user; // Stockez l'utilisateur dans la session
+
+    // Redirection en fonction du rôle de l'utilisateur
+    if (user.Role === 'Admin') {
+      res.json({ message: 'Connexion réussie en tant qu\'administrateur' });
+    } else if (user.Role === 'Jury') {
+      res.json({ message: 'Connexion réussie en tant que jury' });
+    } else if (user.Role === 'Participant') {
+      res.json({ message: 'Connexion réussie en tant que participant' });
+      
+    } else {
+      res.json({ message: 'Rôle utilisateur non reconnu' });
+    }
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+app.put('/utilisateurs/:id', async (req, res) => {
+  const userId = req.params.id;
+  const { Nom_d_utilisateur, Mot_de_passe, Adresse_e_mail, Role } = req.body;
+
+  try {
+    // Vérifier si l'utilisateur existe
+    const user = await Utilisateur.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+
+    // Mettre à jour les champs de l'utilisateur
+    user.Nom_d_utilisateur = Nom_d_utilisateur;
+    user.Mot_de_passe = Mot_de_passe;
+    user.Adresse_e_mail = Adresse_e_mail;
+    user.Role = Role;
+
+    // Enregistrer les modifications
+    const updatedUser = await user.save();
+    res.json(updatedUser);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+
+
+app.listen(8080, () => console.log('Serveur démarré sur le port 3004'));
